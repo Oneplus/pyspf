@@ -1,41 +1,46 @@
 #!/usr/bin/env python
 
+
 class Type(object):
-  ''' The basic abstract object for type '''
-  def __init__(self_, name):
-    self_.name_ = name
+    """ The basic abstract object for type """
 
-  def __eq__(self_, other):
-    return self_ == other
+    def __init__(self, name):
+        self.name = name
 
-  def __neq__(self_, other):
-    return not self_.__eq__(other)
+    def __eq__(self, other):
+        return self == other
 
-  def get_name(self_):
-    return self_.name_
+    def __neq__(self, other):
+        return not self.__eq__(other)
 
-  def hash_code(self_):
-    return self_.hash_code_cache
+    def get_name(self):
+        return self.name
 
-  def is_array(self_):
-    raise NotImplementedError('is_array not implemented')
+    def hash_code(self):
+        return self.hash_code_cache
 
-  def is_complex(self_):
-    raise NotImplementedError('is_complex not implemented')
+    def is_array(self):
+        raise NotImplementedError()
 
-  def is_extending(self_):
-    raise NotImplementedError('is_extending not implemented')
+    def is_complex(self):
+        raise NotImplementedError()
 
-  def is_extending_or_extended_by(self_, other):
-    ''' For hierachical type ontology '''
-    raise NotImplementedError('is_extending_or_extended_by not implemented')
+    def is_extending(self, other):
+        raise NotImplementedError()
 
-  def __str__(self_):
-    return ''
+    def is_extending_or_extended_by(self, other):
+        """
+        For hierachical type ontology
+        :param other:
+        """
+        raise NotImplementedError()
 
-  def __hash__(self_):
-    return hash(self_.name_)
+    def __str__(self):
+        return ''
 
-  #def read_resolve(self_):
-  #  ''' querying the type repository and get the equivalent class '''
-  #  return LogicalLanguageServices.get_type_repository().get_type_create_if_needed(self_.name_)
+    def __hash__(self):
+        return hash(self.name)
+
+        # def read_resolve(self):
+        #  ''' querying the type repository and get the equivalent class '''
+        #  return LogicalLanguageServices.get_type_repository().get_type_create_if_needed(self.name)

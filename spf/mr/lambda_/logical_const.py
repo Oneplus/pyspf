@@ -1,137 +1,147 @@
 #!/usr/bin/env python
-
 from spf.mr.lambda_.term import Term
+from spf.mr.lambda_.logical_expr import LogicalExpression
 from spf.mr.lambda_.logical_expr_runtime_error import LogicalExpressionRuntimeError
 import logging
 import re
 
+
 class LogicalConstant(Term):
-  LOG = logging.getLogger(__name__)
+    LOG = logging.getLogger(__name__)
 
-  DYNAMIC_MARKER = '@'
-  ILLEGAL_CHARS = '(),:#'
-  ILLEGAL_PREFIX_CHARS = ILLEGAL_CHARS + '!$@'
-  REGEXP_NAME_PATTERN = re.compile('(?:%s[^%s]+)|(?:[^%s][^%s]*)' % (
-    DYNAMIC_MARKER, ILLEGAL_CHARS, ILLEGAL_PREFIX_CHARS, ILLEGAL_CHARS))
+    DYNAMIC_MARKER = '@'
+    ILLEGAL_CHARS = '(),:#'
+    ILLEGAL_PREFIX_CHARS = ILLEGAL_CHARS + '!$@'
+    REGEXP_NAME_PATTERN = re.compile('(?:%s[^%s]+)|(?:[^%s][^%s]*)' % (
+        DYNAMIC_MARKER, ILLEGAL_CHARS, ILLEGAL_PREFIX_CHARS, ILLEGAL_CHARS))
 
-  def __init__(self_, name_, type_):
-    super(LogicalConstant, self_).__init__(type_)
-    self_.name_ = name_
+    def __init__(self, name, type_):
+        super(LogicalConstant, self).__init__(type_)
+        self.name = name
 
-  def accept(self_, visitor):
-    visitor.visit(self_)
+    def accept(self, visitor):
+        visitor.visit(self)
 
-  def calculate_hash_code(self_):
-    return (31 * super(LogicalConstant, self_).calculate_hash_code() +
-        (0 if self_.name_ is None else hash(self_.name_)))
+    def calculate_hash_code(self):
+        return (31 * super(LogicalConstant, self).calculate_hash_code() +
+                (0 if self.name is None else hash(self.name)))
 
-  def get_base_name(self_):
-    sep = len(self_.name_) - len(self_.get_type().get_name()) - len(Term.TYPE_SEPARATOR)
-    return self_.name_[:sep]
+    def get_base_name(self):
+        sep = len(self.name) - len(self.get_type().get_name()) - len(Term.TYPE_SEPARATOR)
+        return self.name[:sep]
 
-  def get_name(self_):
-    return self_.name_
+    def get_name(self):
+        return self.name
 
-  def equals(self_, other, mapping=None):
-    if LogicLanguageServices.get_ontology() is None:
-      return isinstance(other, LogicalConstant) and self_.do_equals(other)
-    else:
-      return id(self_) == id(other)
+    def __eq__(self, other):
+        return self.equals(other)
 
-  def do_equals(self_, other, mapping=None):
-    if id(self_) == id(other):
-      return True
-    if not super(LogicalConstant, self_).do_equals(other):
-      return False
-    if self_.name_ is None:
-      if other.name_ is not None:
-        return False
-    elif not self_.name_ == other.name_:
-      return False
-    return True
-
-  @staticmethod
-  def create(name_, type_, dynamic=False):
-    if name_.startswith(LogicalConstant.DYNAMIC_MARKER):
-      name_ = name_[len(LogicalConstant.DYNAMIC_MARKER):]
-      dynamic = True
-
-    from spf.mr.lambda_.logic_language_services import LogicLanguageServices
-    ontology_ = LogicLanguageServices.get_ontology()
-    if ontology_ is None:
-      return LogicalConstant(name_, type_)
-    else:
-      return ontology_.get_or_add(LogicalConstant(name_, type_), dynamic)
-
-  @staticmethod
-  def create_dynamic(name_, type_):
-    return LogicalConstant.create(name_, type_, True)
-
-  @staticmethod
-  def escape_string(string_):
-    first = True
-    output = ''
-    for c in string_:
-      if c in LogicalConstant.DYNAMIC_MARKER:
-        if (first and len(string_) > 1) or not first:
-          output += c
+    def equals(self, other, mapping=None):
+        from spf.mr.lambda_.logic_language_services import LogicLanguageServices
+        if LogicLanguageServices.get_ontology() is None:
+            return isinstance(other, LogicalConstant) and self.do_equals(other)
         else:
-          output += '_I%d_' % ord(c)
-      elif first and c in LogicalConstant.ILLEGAL_PREFIX_CHARS:
-        output += '_I%d_' % ord(c)
-      elif c in LogicalConstant.ILLEGAL_CHARS:
-        output += '_I%d_' % ord(c)
-      elif c.isspace():
-        output += '_I%d_' % ord(c)
-      else:
-        output += c
-      first = False
-    return output
+            return id(self) == id(other)
 
-  @staticmethod
-  def is_valid_name(name_):
-    from spf.mr.lambda_.logic_language_services import LogicLanguageServices
-    split = name_.split(':', 2)
-    type_repository_ = LogicLanguageServices.get_type_repository()
-    return ((REGEXP_NAME_PATTERN.matches(split[0]) is not None) and
-        (type_repository_.get_type_create_if_needed(split[1]) is not None))
-
-  @staticmethod
-  def make_name(name_, type_):
-    return '%s:%s'% (name_, str(type_))
-
-  @staticmethod
-  def read(string_, type_repository_=None):
-    if type_repository_ is None:
-      from spf.mr.lambda_.logic_language_services import LogicLanguageServices
-      type_repository_ = LogicLanguageServices.get_type_repository()
-
-    split = string_.split(Term.TYPE_SEPARATOR)
-    if len(split) != 2:
-      raise LogicalExpressionRuntimeError('Constant syntax error: %s' % string_)
-    type_ = type_repository_.get_type(split[1])
-    if type_ is None:
-      type_ = type_repository_.get_type_create_if_needed(split[1])
-    if type_ is None:
-      raise LogicalExpressionRuntimeError('Unknown type for: %s' % string_)
-    return LogicalConstant.create(string_, type_)
-
-  class Reader(object):
-    @staticmethod
-    def is_valid(string_):
-      return LogicalConstantBuilder.is_valid_name(string_)
+    def do_equals(self, other, mapping=None):
+        if id(self) == id(other):
+            return True
+        if not super(LogicalConstant, self).do_equals(other):
+            return False
+        if self.name is None:
+            if other.name is not None:
+                return False
+        elif other.name != self.name:
+            return False
+        return True
 
     @staticmethod
-    def read(string_, mapping, type_repository, type_comparator, reader):
-      return LogicalConstantBuilder.read(string_, type_repository)
+    def create(name, type_, dynamic=False):
+        if name.startswith(LogicalConstant.DYNAMIC_MARKER):
+            name = name[len(LogicalConstant.DYNAMIC_MARKER):]
+            dynamic = True
+
+        from spf.mr.lambda_.logic_language_services import LogicLanguageServices
+        ontology = LogicLanguageServices.get_ontology()
+        if ontology is None:
+            return LogicalConstant(name, type_)
+        else:
+            return ontology.get_or_add(LogicalConstant(name, type_), dynamic)
+
+    @staticmethod
+    def create_dynamic(name, type_):
+        """
+        :param name:
+        :param type_:
+        :rtype: object
+        """
+        return LogicalConstant.create(name, type_, True)
+
+    @classmethod
+    def escape_string(cls, string):
+        first = True
+        output = ''
+        for c in string:
+            if c in cls.DYNAMIC_MARKER:
+                if (first and len(string) > 1) or not first:
+                    output += c
+                else:
+                    output += '_I%d_' % ord(c)
+            elif first and c in cls.ILLEGAL_PREFIX_CHARS:
+                output += '_I%d_' % ord(c)
+            elif c in cls.ILLEGAL_CHARS:
+                output += '_I%d_' % ord(c)
+            elif c.isspace():
+                output += '_I%d_' % ord(c)
+            else:
+                output += c
+            first = False
+        return output
+
+    @classmethod
+    def is_valid_name(cls, name):
+        from spf.mr.lambda_.logic_language_services import LogicLanguageServices
+        split = name.split(':', 2)
+        type_repository = LogicLanguageServices.get_type_repository()
+        return cls.REGEXP_NAME_PATTERN.match(split[0]) is not None and \
+               type_repository.get_type_create_if_needed(split[1]) is not None
+
+    @staticmethod
+    def make_name(name, type_):
+        return '%s:%s' % (name, str(type_))
+
+    @staticmethod
+    def read(string, type_repository=None):
+        if type_repository is None:
+            from spf.mr.lambda_.logic_language_services import LogicLanguageServices
+            type_repository = LogicLanguageServices.get_type_repository()
+
+        split = string.split(Term.TYPE_SEPARATOR)
+        if len(split) != 2:
+            raise LogicalExpressionRuntimeError('Constant syntax error: %s' % string)
+        type_ = type_repository.get_type(split[1])
+        if type_ is None:
+            type_ = type_repository.get_type_create_if_needed(split[1])
+        if type_ is None:
+            raise LogicalExpressionRuntimeError('Unknown type for: %s' % string)
+        return LogicalConstant.create(string, type_)
+
+    class Reader(LogicalExpression.Reader):
+        @staticmethod
+        def is_valid(string):
+            return LogicalConstant.is_valid_name(string)
+
+        @staticmethod
+        def read(string, mapping, type_repository, type_comparator, reader):
+            return LogicalConstant.read(string, type_repository)
 
 
 class WrappedConstant(object):
-  def __init__(self_, constant_):
-    self_.constant_ = constant_
+    def __init__(self, constant):
+        self.constant = constant
 
-  def __eq__(self_, other):
-    return isinstance(other, WrappedConstant) and self_.constant_.do_equals(other.constant_)
+    def __eq__(self, other):
+        return isinstance(other, WrappedConstant) and self.constant.do_equals(other.constant)
 
-  def calculate_hash_code(self_):
-    return self_.constant_.calculate_hash_code()
+    def __hash__(self):
+        return hash(self.constant)

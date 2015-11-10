@@ -2,33 +2,35 @@
 
 from spf.mr.lambda_.visitor.logical_expr_visitor import AbstractLogicalExpressionVisitor
 
+
 class GetAllSimpleConstantNames(AbstractLogicalExpressionVisitor):
-  def __init__(self_):
-    self_.names_ = {}
+    def __init__(self):
+        self.names = {}
 
-  @staticmethod
-  def of(expr_):
-    visitor = GetAllSimpleConstantNames()
-    visitor.visit(expr_)
-    return visitor.names_
+    @staticmethod
+    def of(expr):
+        visitor = GetAllSimpleConstantNames()
+        visitor.visit(expr)
+        return visitor.names
 
-  def visit_lambda(self_, lambda_):
-    lambda_.get_argument().accept(self_)
-    lambda_.get_body().accept(self_)
+    def visit_lambda(self, lambda_):
+        lambda_.get_argument().accept(self)
+        lambda_.get_body().accept(self)
 
-  def visit_literal(self_, literal_):
-    literal_.get_predicate().accept(self_)
-    for arg_ in literal_.get_arguments():
-      arg_.accept(self_)
+    def visit_literal(self, literal):
+        literal.get_predicate().accept(self)
+        for arg in literal.get_arguments():
+            arg.accept(self)
 
-  def visit_logical_constant(self_, logical_constant_):
-    if not logical_constant_.get_type().is_complex():
-      if logical_constant_.get_name() is not in self_.names_:
-        self_.names_[logical_constant_.get_name()] = 0
-      self_.names_[logical_constant_.get_name()] += 1
+    def visit_logical_constant(self, logical_constant):
+        if not logical_constant.get_type().is_complex():
+            name = logical_constant.get_name()
+            if name not in self.names:
+                self.names[name] = 0
+            self.names[name] += 1
 
-  def visit_logical_expression(self_, logical_expr_):
-    logical_expr_.accept(self_)
+    def visit_logical_expression(self, logical_expr):
+        logical_expr.accept(self)
 
-  def visit_variable(self_, variable_):
-    return
+    def visit_variable(self, variable):
+        return

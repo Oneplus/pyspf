@@ -2,57 +2,59 @@
 
 from spf.mr.lambda_.logical_const import LogicalConstant
 from spf.mr.lambda_.lambda_ import Lambda
+from spf.mr.lambda_.literal import Literal
 from spf.mr.lambda_.visitor.logical_expr_visitor import AbstractLogicalExpressionVisitor
 
+
 class GetStructure(AbstractLogicalExpressionVisitor):
-  ''' This visitor remove the lexical items in lambda calculus, like
-  (lambda $0 (foo:<e,<e,t>> $0 bar) to (lambda $0 (ann:<e,<e,t>> $0 ann))
-  '''
-  DEFAULT_ANONNYMOUS_TAG = 'anno'
+    """
+    This visitor remove the lexical items in lambda calculus, e.g.
+    (lambda $0 (foo:<e,<e,t>> $0 bar) --> (lambda $0 (ann:<e,<e,t>> $0 ann))
+    """
+    DEFAULT_ANONYMOUS_TAG = 'anno'
 
-  def __init__(self_, anonnymous_name):
-    self_.anonnymous_name_ = anonnymous_name_
-    self_.temp_return_ = None
+    def __init__(self, anonymous_name):
+        self.anonymous_name = anonymous_name
+        self.temp_return = None
 
-  @staticmethod
-  def of(expr_, anonnymous_name_=DEFAULT_ANONNYMOUS_TAG):
-    visitor = GetStructure(anonnymous_name_)
-    visitor.visit(expr_)
-    return visitor.temp_return_
+    @staticmethod
+    def of(expr, anonymous_name=DEFAULT_ANONYMOUS_TAG):
+        visitor = GetStructure(anonymous_name)
+        visitor.visit(expr)
+        return visitor.temp_return
 
-  def visit_lambda(self_, lambda_):
-    lambda_.get_body().accept(self_)
-    if lambda_.get_body() == self_.temp_return_:
-      self_.temp_return_ = lambda_
-    else:
-      self_.temp_return_ = Lambda(lambda_.get_argument(), self_.temp_return_)
+    def visit_lambda(self, lambda_):
+        lambda_.get_body().accept(self)
+        if lambda_.get_body() == self.temp_return:
+            self.temp_return = lambda_
+        else:
+            self.temp_return = Lambda(lambda_.get_argument(), self.temp_return)
 
-  def visit_literal(self_, literal_):
-    literal_.get_predicate().accept(self_)
-    new_predicate_ = self_.temp_return_
+    def visit_literal(self, literal):
+        literal.get_predicate().accept(self)
+        new_predicate = self.temp_return
 
-    args_changed_ = False
-    new_args_ = []
+        args_changed = False
+        new_args = []
 
-    for arg_ in literal_.get_arguments():
-      arg_.accept(self_)
-      new_args_.append(self_.temp_return_)
-      if arg_ != self.temp_return_:
-          args_changed_ = True
+        for arg in literal.get_arguments():
+            arg.accept(self)
+            new_args.append(self.temp_return)
+            if arg != self.temp_return:
+                args_changed = True
 
-    if args_changed_ or new_predicate_ != literal_.get_predicate():
-      self_.temp_return_ = Literal(new_predicate_,
-          new_args_ if args_changed_ else literal_.get_arguments())
-    else:
-      self_.temp_return_ = literal_
+        if args_changed or new_predicate != literal.get_predicate():
+            self.temp_return = Literal(new_predicate, new_args if args_changed else literal.get_arguments())
+        else:
+            self.temp_return = literal
 
-  def visit_logical_constant(self_, logical_constant_):
-    self_.temp_return_ = LogicalConstant.create(
-        LogicalConstant.make_name(self_.anonnymous_name_, logical_constant_.get_type()),
-        logical_constant_.get_type())
+    def visit_logical_constant(self, logical_constant):
+        self.temp_return = LogicalConstant.create(
+            LogicalConstant.make_name(self.anonymous_name, logical_constant.get_type()),
+            logical_constant.get_type())
 
-  def visit_logical_expression(self_, logical_expr_):
-    logical_expr_.accept(self_)
+    def visit_logical_expression(self, logical_expr):
+        logical_expr.accept(self)
 
-  def visit_variable(self_, variable_):
-    self_.temp_return_ = variable_
+    def visit_variable(self, variable):
+        self.temp_return = variable

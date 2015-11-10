@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+
 class LogicalExpressionRuntimeError(RuntimeError):
-  def __init__(self_, message):
-    super(LogicalExpressionRuntimeError, self_).__init__(message)
+    def __init__(self, message):
+        super(LogicalExpressionRuntimeError, self).__init__(message)

@@ -2,48 +2,49 @@
 
 from spf.ccg.categories.abstract_category import AbstractCategory
 
+
 class SimpleCategory(AbstractCategory):
-  def __init__(self_, syntax_, semantics_):
-    super(SimpleCategory, self_).__init__(semantics_)
-    self_.syntax_ = syntax_
+    def __init__(self, syntax, semantics_):
+        super(SimpleCategory, self).__init__(semantics_)
+        self.syntax = syntax
 
-  def clone_with_new_semantics(self_, semantics_):
-    return SimpleCategory(self_.syntax_, semantics_)
+    def clone_with_new_semantics(self, semantics):
+        return SimpleCategory(self.syntax, semantics)
 
-  def __eq__(self_, other):
-    if id(self_) == id(other):
-      return True
-    if super(SimpleCategory, self_) != other:
-      return False
-    if self_.__class__ != other.__class__:
-      return False
-    if self_.syntax_ is None:
-      if other.syntax_ is not None:
-        return False
-    elif self_.syntax_ == other.syntax_:
-      return False
-    return True
+    def __eq__(self, other):
+        if id(self) == id(other):
+            return True
+        if super(SimpleCategory, self) != other:
+            return False
+        if self.__class__ != other.__class__:
+            return False
+        if self.syntax is None:
+            if other.syntax_ is not None:
+                return False
+        elif self.syntax == other.syntax_:
+            return False
+        return True
 
-  def equals_no_sem(self_, other):
-    return isinstance(other, SimpleCategory) and self_.syntax_ == other.syntax_
+    def equals_no_sem(self, other):
+        return isinstance(other, SimpleCategory) and self.syntax == other.syntax
 
-  def get_syntax(self_):
-    return self_.syntax_
+    def get_syntax(self):
+        return self.syntax
 
-  def matches(self_, other):
-    return self_ == other
+    def matches(self, other):
+        return self == other
 
-  def matches_no_sem(self_, other):
-    return self_.equals_no_sem(other)
+    def matches_no_sem(self, other):
+        return self.equals_no_sem(other)
 
-  def num_slashes(self_):
-    return 0
+    def num_slashes(self):
+        return 0
 
-  def __str__(self_):
-    if self_.get_sem() is None:
-      return str(self_.syntax_)
-    else:
-      return '%s:%s' % (str(self_.syntax_), str(self_.get_sem()))
+    def __str__(self):
+        if self.get_sem() is None:
+            return str(self.syntax)
+        else:
+            return '%s:%s' % (str(self.syntax), str(self.get_sem()))
 
-  def syntax_hash(self_):
-    return hash(self_.syntax_)
+    def syntax_hash(self):
+        return hash(self.syntax)

@@ -2,33 +2,40 @@
 
 from spf.mr.lambda_.visitor.logical_expr_visitor import AbstractLogicalExpressionVisitor
 
+
 class IsValid(AbstractLogicalExpressionVisitor):
-  def __init__(self_):
-    self_.bound_variables_ = set()
-    self_.result_ = True
+    """
+    IsValid check if the there is variables that already used in former lambda expression, e.g.:
+    (lambda $0:e (lambda $0:e (p:<e,t> $0)))
+    """
+    def __init__(self):
+        self.bound_variables = set()
+        self.result = True
 
-  @staticmethod
-  def of(expr_):
-    visitor = IsValid()
-    visitor.visit(expr_)
-    return visitor.constant_strings_
+    @staticmethod
+    def of(expr):
+        visitor = IsValid()
+        visitor.visit(expr)
+        return visitor.result
 
-  def visit_lambda(self_, lambda_):
-    if self_.bound_variables_.add(lambda_.get_argument()):
-      self_.result_ = False
-    lambda_.get_argument().accept(self_)
-    lambda_.get_body().accept(self_)
+    def visit_lambda(self, lambda_):
+        if lambda_.get_argument() in self.bound_variables:
+            self.result = False
+        else:
+            self.bound_variables.add(lambda_.get_argument())
+        lambda_.get_argument().accept(self)
+        lambda_.get_body().accept(self)
 
-  def visit_literal(self_, literal_):
-    literal_.get_predicate().accept(self_)
-    for arg_ in literal_.get_arguments():
-      arg_.accept(self_)
+    def visit_literal(self, literal):
+        literal.get_predicate().accept(self)
+        for arg in literal.get_arguments():
+            arg.accept(self)
 
-  def visit_logical_constant(self_, logical_constant_):
-    return
+    def visit_logical_constant(self, logical_constant):
+        return
 
-  def visit_logical_expression(self_, logical_expr_):
-    logical_expr_.accept(self_)
+    def visit_logical_expression(self, logical_expr):
+        logical_expr.accept(self)
 
-  def visit_variable(self_, variable_):
-    return
+    def visit_variable(self, variable):
+        return

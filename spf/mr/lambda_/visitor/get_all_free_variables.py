@@ -2,33 +2,40 @@
 
 from spf.mr.lambda_.visitor.logical_expr_visitor import AbstractLogicalExpressionVisitor
 
+
 class GetAllFreeVariables(AbstractLogicalExpressionVisitor):
-  def __init__(self_):
-    self_.bound_variables_ = set()
-    self_.free_variables_ = set()
+    """ Free Variables are the unbound variable, e.g. $1 in (lambda $0:e (predicate:<e,<e,t>> $0 $1)) """
+    def __init__(self):
+        self.bound_variables = set()
+        self.free_variables = set()
 
-  @staticmethod
-  def of(expr_):
-    visitor = GetAllFreeVariables()
-    visitor.visit(expr_)
-    return visitor.free_variables_
+    @staticmethod
+    def of(expr):
+        visitor = GetAllFreeVariables()
+        visitor.visit(expr)
+        return visitor.free_variables
 
-  def visit_lambda(self_, lambda_):
-    self_.bound_variables_.add(lambda_.get_argument())
-    lambda_.get_body().accept(self_)
-    self_.bound_variables_.remove(lambda_.get_argument())
+    def visit_lambda(self, lambda_):
+        """
+        If visiting a lambda expression, collect its variable in the bound_variables
+        :param lambda_:
+        :return:
+        """
+        self.bound_variables.add(lambda_.get_argument())
+        lambda_.get_body().accept(self)
+        self.bound_variables.remove(lambda_.get_argument())
 
-  def visit_literal(self_, literal_):
-    literal_.get_predicate().accept(self_)
-    for arg_ in literal_.get_arguments():
-      arg_.accept(self_)
+    def visit_literal(self, literal):
+        literal.get_predicate().accept(self)
+        for arg in literal.get_arguments():
+            arg.accept(self)
 
-  def visit_logical_constant(self_, logical_constant_):
-    return
+    def visit_logical_constant(self, logical_constant):
+        return
 
-  def visit_logical_expression(self_, logical_expr_):
-    logical_expr_.accept(self_)
+    def visit_logical_expression(self, logical_expr):
+        logical_expr.accept(self)
 
-  def visit_variable(self_, variable_):
-    if variable_ not in self_.bound_variables_:
-      self_.free_variables_.add(variable_)
+    def visit_variable(self, variable):
+        if variable not in self.bound_variables:
+            self.free_variables.add(variable)

@@ -2,42 +2,43 @@
 
 from spf.mr.language.type_.type_ import Type
 
+
 class ArrayType(Type):
-  ARRAY_SUFFIX = '[]'
+    ARRAY_SUFFIX = '[]'
 
-  def __init__(self_, name_, base_type_, parent_):
-    super(ArrayType, self_).__init__(name_)
-    self_.base_type_ = base_type_
-    self_.parent_ = parent_
+    def __init__(self, name_, base_type, parent):
+        super(ArrayType, self).__init__(name_)
+        self.base_type = base_type
+        self.parent = parent
 
-  def get_base_type(self_):
-    return self_.base_type_
+    def get_base_type(self):
+        return self.base_type
 
-  def get_domain(self_):
-    return None
+    def get_domain(self):
+        return None
 
-  def get_range(self_):
-    return self_
+    def get_range(self):
+        return self
 
-  def is_array(self_):
-    return True
+    def is_array(self):
+        return True
 
-  def is_complex(self_):
-    return self_.base_type_.is_complex()
+    def is_complex(self):
+        return self.base_type.is_complex()
 
-  def is_extending(self_, other):
-    if other is None:
-      return False
+    def is_extending(self, other):
+        if other is None:
+            return False
 
-    if self_ == other:
-      return True
-    elif other.is_array():
-      return self_.base_type_.is_extending(other.get_base_type())
-    else:
-      return False if self_.parent_ is None else self_.parent_.is_extending(self_)
+        if self == other:
+            return True
+        elif other.is_array():
+            return self.base_type.is_extending(other.get_base_type())
+        else:
+            return False if self.parent is None else self.parent.is_extending(self)
 
-  def is_extending_or_extended_by(self_, other):
-    return other is not None and (self_.is_extending(other) or other.is_extending(self_))
+    def is_extending_or_extended_by(self, other):
+        return other is not None and (self.is_extending(other) or other.is_extending(self))
 
-  def __str__(self_):
-    return str(self_.base_type_) + ArrayType.ARRAY_SUFFIX
+    def __str__(self):
+        return str(self.base_type) + self.ARRAY_SUFFIX

@@ -1,29 +1,44 @@
 #!/usr/bin/env python
 
+
 class LogicalExpression(object):
-  PARENTHESIS_CLOSE = ')'
-  PARENTHESIS_OPEN = '('
+    PARENTHESIS_CLOSE = ')'
+    PARENTHESIS_OPEN = '('
 
-  def __init__(self_):
-    self_.hash_code_cache = -1
-    self_.hash_code_calculated = False
+    def __init__(self):
+        self.hash_code_cache = -1
+        self.hash_code_calculated = False
 
-  def __hash__(self_):
-    if not self_.hash_code_calculated:
-      self_.hash_code_cache = self_.calculate_hash_code()
-      self_.hash_code_calculated = True
-    return self_.hash_code_cache
+    def __hash__(self):
+        if not self.hash_code_calculated:
+            self.hash_code_cache = self.calculate_hash_code()
+            self.hash_code_calculated = True
+        return self.hash_code_cache
 
-  def calculate_hash_code(self_):
-    raise NotImplementedError
+    def calculate_hash_code(self):
+        raise NotImplementedError()
 
-  def __str__(self_):
-    raise NotImplementedError
+    def __str__(self):
+        from spf.mr.lambda_.logic_language_services import LogicLanguageServices
+        return LogicLanguageServices.to_string(self)
 
-  def do_equals(self_, expr, mapping):
-    raise NotImplementedError
+    def __eq__(self, other):
+        from spf.mr.lambda_.logic_language_services import LogicLanguageServices
+        return isinstance(other, LogicalExpression) and \
+               hash(self) == hash(other) and \
+               LogicLanguageServices.is_equal(self, other)
 
-  def equals(self_, expr, mapping):
-    return (expr is not None and
-        expr.hash_code() == self_.hash_code() and
-        self_.do_equals(expr, mapping))
+    def do_equals(self, expr, mapping):
+        raise NotImplementedError()
+
+    def equals(self, expr, mapping):
+        return expr is not None and hash(expr) == hash(self) and self.do_equals(expr, mapping)
+
+    class Reader(object):
+        @classmethod
+        def is_valid(cls, string):
+            raise NotImplementedError()
+
+        @classmethod
+        def read(cls, string, mapping, type_repository, type_comparator, reader):
+            raise NotImplementedError()

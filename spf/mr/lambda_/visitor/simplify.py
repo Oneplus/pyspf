@@ -2,14 +2,16 @@
 
 from spf.mr.lambda_.visitor.abstract_simplify import AbstractSimplify
 
+
 class Simplify(AbstractSimplify):
-  def __init__(self_, strip_lambdas_):
-    super(Simplify, self_).__init__(strip_lambdas_)
+    def __init__(self, strip_lambdas):
+        super(Simplify, self).__init__(strip_lambdas)
 
-  def of(expr_, strip_lambdas_=False):
-    visitor = Simplify(strip_lambdas_)
-    visitor.visit(expr_)
-    return visitor.temp_return_
+    @staticmethod
+    def of(expr, strip_lambdas=False):
+        visitor = Simplify(strip_lambdas)
+        visitor.visit(expr)
+        return visitor.temp_return
 
-  def visit_variable(self_, variable_):
-    self_.temp_return_ = variable_
+    def visit_variable(self, variable):
+        self.temp_return = variable

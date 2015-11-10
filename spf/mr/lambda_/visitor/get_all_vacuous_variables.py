@@ -2,30 +2,32 @@
 
 from spf.mr.lambda_.visitor.logical_expr_visitor import AbstractLogicalExpressionVisitor
 
+
 class GetAllVacuousVariables(AbstractLogicalExpressionVisitor):
-  def __init__(self_):
-    self_.vacuous_variables_ = set()
+    """ Vacuous variables is like (lambda $0:e (predicate:<e,t> UK)) """
+    def __init__(self):
+        self.vacuous_variables = set()
 
-  @staticmethod
-  def of(expr_):
-    visitor = GetAllVacuousVariables()
-    visitor.visit(expr_)
-    return visitor.vacuous_variables_
+    @staticmethod
+    def of(expr):
+        visitor = GetAllVacuousVariables()
+        visitor.visit(expr)
+        return visitor.vacuous_variables
 
-  def visit_lambda(self_, lambda_):
-    self_.vacuous_variables_.add(lambda_.get_argument())
-    lambda_.get_body().accept(self_)
+    def visit_lambda(self, lambda_):
+        self.vacuous_variables.add(lambda_.get_argument())
+        lambda_.get_body().accept(self)
 
-  def visit_literal(self_, literal_):
-    literal_.get_predicate().accept(self_)
-    for arg_ in literal_.get_arguments():
-      arg_.accept(self_)
+    def visit_literal(self, literal):
+        literal.get_predicate().accept(self)
+        for arg in literal.get_arguments():
+            arg.accept(self)
 
-  def visit_logical_constant(self_, logical_constant_):
-    return
+    def visit_logical_constant(self, logical_constant):
+        return
 
-  def visit_logical_expression(self_, logical_expr_):
-    logical_expr_.accept(self_)
+    def visit_logical_expression(self, logical_expr):
+        logical_expr.accept(self)
 
-  def visit_variable(self_, variable_):
-    self_.vacuous_variables_.remove(variable_)
+    def visit_variable(self, variable):
+        self.vacuous_variables.remove(variable)

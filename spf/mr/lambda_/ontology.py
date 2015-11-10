@@ -3,59 +3,101 @@
 from spf.mr.lambda_.logical_expr_runtime_error import LogicalExpressionRuntimeError
 from spf.mr.lambda_.logical_const import LogicalConstant, WrappedConstant
 
+
 class Ontology(object):
-  def __init__(self_, constants_, is_closed_):
-    self_.is_closed_ = is_closed_
-    self_.constants_ = {}
-    self_.constants_by_name = {}
+    def __init__(self, constants, closed):
+        """
+        The initializer
 
-    for constant_ in constants_:
-      # TODO
-      self_.constants_({constant_, constants_})
-      self_.constants_by_name.update({constants_.get_name(), constants_})
+        :param constants: spf.mr.lambda_.logical_const.LogicalConstant
+        :param closed:
+        :return:
+        """
+        self.closed = closed
+        self.constants = {}
+        self.constants_by_name = {}
 
-  def add(self_, constant_, force):
-    if constant_ not in self_.constants_:
-      if (force or not self_.is_closed):
-        constants_.update({constant_, constant_})
-        constants_by_name.update({constant_.get_name(), constant_})
-      else:
-        raise LogicalExpressionRuntimeError(
-            'Closed ontolog. Failed to add %s' % str(constant_))
-    return self_.get(constant_.get_name())
+        for constant in constants:
+            # TODO
+            self.constants.update({WrappedConstant(constant): constant})
+            self.constants_by_name.update({constant.get_name(): constant})
 
-  def get(self_, constant_):
-    if isinstance(constant_, LogicalConstant):
-      return self_.constants_.get(constant_, None)
-    elif isinstance(constant_, str):
-      return self_.constants_by_name.get(constant_, None)
-    else:
-      raise LogicalExpressionRuntimeError('Not known type of input argument.')
+    def add(self, constant, force):
+        """
 
-  def contains(self_, constant_):
-    if isinstance(constant_, LogicalConstant):
-      return constant_ in self_.constants_
-    elif isinstance(constant_, str):
-      return constant_ in self_.constants_by_name
-    else:
-      raise LogicalExpressionRuntimeError('Not known type of input argument.')
+        :param constant:
+        :type constant: LogicalConstant
+        :param force:
+        :type force: bool
+        :return:
+        """
+        if WrappedConstant(constant) not in self.constants:
+            if force or not self.closed:
+                self.constants.update({WrappedConstant(constant): constant})
+                self.constants_by_name.update({constant.get_name(): constant})
+            else:
+                raise LogicalExpressionRuntimeError('Closed ontology. Failed to add %s' % str(constant))
+        return self.get(constant.get_name())
 
-  def get_all_constants(self_):
-    return self_.constants_.values()
+    def get(self, constant):
+        """
 
-  def get_all_predicates(self_):
-    predicates = set()
-    for key, value in self_.constants_.iteritems():
-      if value.get_type().is_complex():
-        predicates.add(value)
-    return predicates
+        :param constant:
+        :type constant: LogicalConstant | str
+        :return:
+        """
+        if isinstance(constant, LogicalConstant):
+            return self.constants.get(WrappedConstant(constant), None)
+        elif isinstance(constant, str):
+            return self.constants_by_name.get(constant, None)
+        else:
+            raise LogicalExpressionRuntimeError('Not known type of input argument.')
 
-  def get_or_add(self_, constant_, force):
-    if self_.contains(constant_):
-      return self_.get(constant_)
-    else:
-      return self_.add(constant_, force)
+    def contains(self, constant):
+        """
 
-  def is_closed(self_):
-    return self_.is_closed_
+        :param constant: spf.mr.lambda_.logical_const.LogicalConstant or str
+        :return:
+        """
+        if isinstance(constant, LogicalConstant):
+            return WrappedConstant(constant) in self.constants
+        elif isinstance(constant, str):
+            return constant in self.constants_by_name
+        else:
+            raise LogicalExpressionRuntimeError('Not known type of input argument.')
 
+    def get_all_constants(self):
+        """
+
+        :return:
+        """
+        return self.constants.values()
+
+    def get_all_predicates(self):
+        """
+
+        :return:
+        :rtype: set [LogicalConstant]
+        """
+        predicates = set()
+        for wrapped, constant in self.constants.iteritems():
+            if constant.get_type().is_complex():
+                predicates.add(constant)
+        return predicates
+
+    def get_or_add(self, constant, force):
+        """
+
+        :param constant:
+        :type constant: LogicalConstant
+        :param force:
+        :type force: bool
+        :return:
+        """
+        if self.contains(constant):
+            return self.get(constant)
+        else:
+            return self.add(constant, force)
+
+    def is_closed(self):
+        return self.closed

@@ -2,29 +2,30 @@
 
 from spf.mr.lambda_.visitor.logical_expr_visitor import AbstractLogicalExpressionVisitor
 
+
 class IsExtendedConstant(AbstractLogicalExpressionVisitor):
-  def __init__(self_):
-    self_.is_extened_constant_ = True
+    def __init__(self):
+        self.is_extened_constant = True
 
-  @staticmethod
-  def of(expr_):
-    visitor = IsExtendedConstant()
-    visitor.visit(expr_)
-    return visitor.is_extened_constant_
+    @staticmethod
+    def of(expr):
+        visitor = IsExtendedConstant()
+        visitor.visit(expr)
+        return visitor.is_extened_constant
 
-  def visit_lambda(self_, lambda_):
-    self_.is_extened_constant_ = False
+    def visit_lambda(self, lambda_):
+        self.is_extened_constant = False
 
-  def visit_literal(self_, literal_):
-    literal_.get_predicate().accept(self_)
-    for arg_ in literal_.get_arguments():
-      arg_.accept(self_)
+    def visit_literal(self, literal):
+        literal.get_predicate().accept(self)
+        for arg in literal.get_arguments():
+            arg.accept(self)
 
-  def visit_logical_constant(self_, logical_constant_):
-    return
+    def visit_logical_constant(self, logical_constant):
+        return
 
-  def visit_logical_expression(self_, logical_expr_):
-    logical_expr_.accept(self_)
+    def visit_logical_expression(self, logical_expr):
+        logical_expr.accept(self)
 
-  def visit_variable(self_, variable_):
-    self_.is_extened_constant_ = False
+    def visit_variable(self, variable):
+        self.is_extened_constant = False

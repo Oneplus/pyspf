@@ -1,207 +1,246 @@
 #!/usr/bin/env python
-
+import re
+from cStringIO import StringIO
 from spf.mr.lambda_.ontology import Ontology
 from spf.mr.lambda_.literal import Literal
-from spf.mr.lambda_.term import Term
 from spf.mr.lambda_.logical_const import LogicalConstant
-from spf.mr.lambda_.logical_expr_runtime_error import LogicalExpressionRuntimeError
-from spf.mr.lambda_.logical_expr_comparator import LogicalExpressionComparator
 from spf.mr.lambda_.strict_type_comparator import StrictTypeComparator
-from spf.mr.language.type_.type_ import Type
-from spf.mr.language.type_.complex_type import ComplexType
-from spf.mr.language.type_.type_repository import TypeRepository
+from spf.mr.lambda_.primitivetypes.and_simplifier import AndSimplifier
+from spf.mr.lambda_.primitivetypes.or_simplifier import OrSimplifier
+from spf.mr.lambda_.primitivetypes.not_simplifier import NotSimplifier
+from spf.mr.lambda_.term import Term
+from spf.mr.lambda_.printer.logical_expr_to_string import LogicalExpressionToString
 from spf.utils.lisp_reader import LispReader
+from spf.utils.log import get_logger
 
-import logging
-import re
 
 class LogicLanguageServices(object):
-  LOG = logging.getLogger(__name__)
+    LOG = get_logger(__name__)
+    INSTANCE = None
 
-  type_repository_ = None
-  comparator_ = LogicalExpressionComparator()
-  ontology_ = None
-  printer_ = None
-  numeral_type_ = None
-  type_comparator_ = None
+    def __init__(self, type_repository, numeral_type_name,
+                 type_comparator, ontology,
+                 conjunction_predicate,
+                 disjunction_predicate,
+                 negation_predicate,
+                 index_increase_predicate,
+                 true_constant,
+                 false_constant,
+                 printer):
 
-  conjunction_predicate_ = None
-  disjunction_predicate_ = None
-  negation_predicate_ = None
-  index_increase_predicate_ = None
+        self.type_repository = type_repository
+        self.ontology = ontology
+        self.printer = printer
+        self.numeral_type = None if numeral_type_name is None else type_repository.get_type(numeral_type_name)
+        self.type_comparator = type_comparator
 
-  true_constant_ = None
-  false_constant_ = None
-  collapsible_constants_ = None
+        # Basic predicates
+        self.conjunction_predicate = conjunction_predicate
+        self.disjunction_predicate = disjunction_predicate
+        self.negation_predicate = negation_predicate
+        self.index_increase_predicate = index_increase_predicate
 
-  def __init__(self_, type_repository_, numeral_type_name_,
-      type_comparator_, ontology_,
-      conjunction_predicate_,
-      disjunction_predicate_,
-      negation_predicate_,
-      index_increase_predicate_,
-      true_constant_,
-      false_constant_,
-      printer_):
-    LogicLanguageServices.type_repository_ = type_repository_
-    LogicLanguageServices.ontology_ = ontology_
-    LogicLanguageServices.printer_ = printer_
-    LogicLanguageServices.numeral_type_ = (None if numeral_type_name_ is None else
-        type_repository_.get_type(numeral_type_name_))
-    LogicLanguageServices.type_comparator_ = type_comparator_
+        self.true_constant = true_constant
+        self.false_constant = false_constant
+        self.collapsible_constants = {true_constant, false_constant}
 
-    # Basic predicates
-    LogicLanguageServices.conjunction_predicate_ = conjunction_predicate_
-    LogicLanguageServices.disjunction_predicate_ = disjunction_predicate_
-    LogicLanguageServices.negation_predicate_ = negation_predicate_
-    LogicLanguageServices.index_increase_predicate_ = index_increase_predicate_
+        self.simplifiers = {}
+        self.set_simplifier(self.conjunction_predicate, AndSimplifier(), True)
+        self.set_simplifier(self.disjunction_predicate, OrSimplifier(), True)
+        self.set_simplifier(self.negation_predicate, NotSimplifier(), True)
 
-    # set simplifier
-    # 1.
-    # 2.
-
-    LogicLanguageServices.true_constant_ = true_constant_
-    LogicLanguageServices.false_constant_ = false_constant_
-    LogicLanguageServices.collapsible_constants_ = set([true_constant_, false_constant_])
-
-  @staticmethod
-  def compute_literal_typing(predicate_type, arg_types):
-    return Literal.compute_literal_typing(predicate_type,
-        arg_types,
-        LogicLanguageServices.type_comparator_,
-        LogicLanguageServices.type_repository_)
-
-  @staticmethod
-  def compute_literal_typing_from_args(predicate_type, args):
-    return Literal.compute_literal_typing(predicate_type,
-        [arg.get_type() for arg in args],
-        LogicLanguageServices.type_comparator_,
-        LogicLanguageServices.type_repository_)
-
-  @staticmethod
-  def get_comparator():
-    return LogicLanguageServices.comparator
-
-  @staticmethod
-  def get_conjunction_predicate():
-    return LogicLanguageServices.conjunction_predicate_
-
-  @staticmethod
-  def get_disjunction_predicate():
-    return LogicLanguageServices.disjunction_predicate_
-
-  @staticmethod
-  def get_false():
-    return LogicLanguageServices.false_constant_
-
-  @staticmethod
-  def get_index_increase_predicate():
-    return LogicLanguageServices.index_increase_predicate_
-
-  @staticmethod
-  def get_ontology():
-    return LogicLanguageServices.ontology_
-
-  @staticmethod
-  def get_true():
-    return LogicLanguageServices.true_constant_
-
-  @staticmethod
-  def get_type_comparator():
-    return LogicLanguageServices.type_comparator_
-
-  @staticmethod
-  def get_type_repository():
-    return LogicLanguageServices.type_repository_
-
-  class Builder(object):
-    def __init__(self_, type_repository_, type_comparator_=StrictTypeComparator()):
-      self_.type_repository_ = type_repository_
-      self_.type_comparator_ = type_comparator_
-      self_.constants_files_ = set()
-      self_.numeral_type_name_ = None
-      self_.printer_ = None
-      self_.ontology_closed_ = False
-
-    def set_numeral_type_name(self_, numeral_type_name_):
-      self_.numeral_type_name_ = numeral_type_name_
-      return self_
-
-    def set_printer(self_, printer_):
-      self_.printer_ = printer_
-      return self_
+        self.printer = LogicalExpressionToString.Printer()
 
     @classmethod
-    def read_constants_from_file(self_, file_, type_repository_):
-      stripped_file = ''
-      for line in open(file_, 'r'):
-        line = line.strip()
-        line = re.split('\\s*//')[0]
-        if len(line) == 0:
-          stripped_file += line
-
-      ret = set()
-      lisp_reader = LispReader(stripped_file)
-      while lisp_reader.has_next():
-        expr = LogicalConstant.read(lisp_reader.next(), type_repository_)
-        ret.add(expr)
-      return ret
+    def set_instance(cls, instance):
+        cls.INSTANCE = instance
 
     @classmethod
-    def read_constants_from_files(self_, files, type_repository_):
-      ret = set()
-      for file_ in files:
-        ret.update(self_.read_constants_from_file(file_, type_repository_))
-      return ret
+    def compute_literal_typing(cls, predicate_type, arg_types):
+        return Literal.compute_literal_typing(predicate_type,
+                                              arg_types,
+                                              cls.INSTANCE.type_comparator,
+                                              cls.INSTANCE.type_repository)
 
-    def add_constants_to_ontology(self_, constants_file):
-      if isinstance(constants_file, str):
-        self_.constants_files_.add(constants_file)
-      elif isinstance(constants_file, list):
-        self_.constants_files_.union(constants_file)
-      return self_
+    @classmethod
+    def compute_literal_typing_for_args(cls, predicate_type, args):
+        return Literal.compute_literal_typing(predicate_type,
+                                              [arg.get_type() for arg in args],
+                                              cls.INSTANCE.type_comparator,
+                                              cls.INSTANCE.type_repository)
 
-    def close_ontology(self_, is_closed_):
-      self_.is_closed_ = is_closed_
-      return self_
+    @classmethod
+    def get_comparator(cls):
+        return cls.INSTANCE.comparator
 
-    def build(self_):
-      conjunction_predicate_ = LogicalConstant.read('and:<t*,t>', self_.type_repository_)
-      disjunction_predicate_ = LogicalConstant.read('or:<t*,t>', self_.type_repository_)
-      negation_predicate_  = LogicalConstant.read('not:<t,t>', self_.type_repository_)
-      index_increase_predicate_ = LogicalConstant.read('inc:<%s,%s>' % (
-        self_.type_repository_.get_index_type().get_name(),
-        self_.type_repository_.get_index_type().get_name()), self_.type_repository_)
+    @classmethod
+    def get_conjunction_predicate(cls):
+        return cls.INSTANCE.conjunction_predicate
 
-      true_constant_ = LogicalConstant.create('true:t',
-          self_.type_repository_.get_truth_value_type())
-      false_constant_ = LogicalConstant.create('false:t',
-          self_.type_repository_.get_truth_value_type())
+    @classmethod
+    def get_disjunction_predicate(cls):
+        return cls.INSTANCE.disjunction_predicate
 
-      if len(self_.constants_files_) == 0:
-        ontology_ = None
-        if self_.ontology_closed_:
-          raise RuntimeError(
-              'Closed ontology requested, but no logical constants were provided.')
-      else:
-        constants_ = self_.read_constants_from_files(
-            self_.constants_files_, self_.type_repository_)
-        constants_.add(conjunction_predicate_)
-        constants_.add(disjunction_predicate_)
-        constants_.add(negation_predicate_)
-        constants_.add(index_increase_predicate_)
-        constants_.add(true_constant_)
-        constants_.add(false_constant_)
-        ontology_ = Ontology(constants_, self_.ontology_closed_)
+    @classmethod
+    def get_false(cls):
+        return cls.INSTANCE.false_constant
 
-      return LogicLanguageServices(self_.type_repository_,
-          self_.numeral_type_name_,
-          self_.type_comparator_,
-          ontology_,
-          conjunction_predicate_,
-          disjunction_predicate_,
-          negation_predicate_,
-          index_increase_predicate_,
-          true_constant_,
-          false_constant_,
-          self_.printer_)
+    @classmethod
+    def get_index_increase_predicate(cls):
+        return cls.INSTANCE.index_increase_predicate
+
+    @classmethod
+    def get_negation_predicate(cls):
+        return cls.INSTANCE.negation_predicate
+
+    @classmethod
+    def get_ontology(cls):
+        return None if cls.INSTANCE is None else cls.INSTANCE.ontology
+
+    @classmethod
+    def get_true(cls):
+        return cls.INSTANCE.true_constant
+
+    @classmethod
+    def get_type_comparator(cls):
+        return cls.INSTANCE.type_comparator
+
+    @classmethod
+    def get_type_repository(cls):
+        return cls.INSTANCE.type_repository
+
+    @classmethod
+    def to_string(cls, expr):
+        return cls.INSTANCE.printer.to_string(expr)
+
+    @classmethod
+    def get_simplifier(cls, predicate):
+        return cls.INSTANCE.simplifiers.get(predicate, None)
+
+    @classmethod
+    def is_equal(cls, expr1, expr2):
+        return cls.INSTANCE.comparator.compare(expr1, expr2)
+
+    @classmethod
+    def is_coordination_predicate(cls, predicate):
+        return predicate == cls.INSTANCE.conjunction_predicate or predicate == cls.INSTANCE.disjunction_predicate
+
+    @classmethod
+    def is_array_index_predicate(cls, predicate):
+        # TODO, not implemented
+        return False
+
+    @classmethod
+    def is_array_sub_predicate(cls, predicate):
+        # TODO, not implemented
+        return False
+
+    def set_simplifier(self, predicate, simplifier, collapsible):
+        if collapsible:
+            self.collapsible_constants.add(predicate)
+        self.simplifiers.update({predicate: simplifier})
+
+    @classmethod
+    def int_to_index_constant(cls, i):
+        name = i + Term.TYPE_SEPARATOR + cls.INSTANCE.type_repository.get_index_type().get_name()
+        if cls.INSTANCE.ontology is not None and cls.INSTANCE.ontology.contains(name):
+            return cls.INSTANCE.ontology.get(name)
+        else:
+            return LogicalConstant.create_dynamic(name, cls.INSTANCE.type_repository.get_index_type())
+
+    class Builder(object):
+        def __init__(self, type_repository, type_comparator=StrictTypeComparator()):
+            """
+
+            :rtype: Builder
+            """
+            self.type_repository = type_repository
+            self.type_comparator = type_comparator
+            self.constants_files = set()
+            self.numeral_type_name = None
+            self.printer = None
+            self.ontology_closed = False
+
+        def set_numeral_type_name(self, numeral_type_name):
+            self.numeral_type_name = numeral_type_name
+            return self
+
+        def set_printer(self, printer):
+            self.printer = printer
+            return self
+
+        @classmethod
+        def read_constants_from_file(cls, filename, type_repository):
+            stripped_file = ''
+            for line in open(filename, 'r'):
+                line = line.strip()
+                line = re.split('\\s*//', line)[0]
+                if len(line) != 0:
+                    stripped_file += line + " "
+
+            ret = set()
+            lisp_reader = LispReader(StringIO(stripped_file))
+            while lisp_reader.has_next():
+                expr = LogicalConstant.read(lisp_reader.next(), type_repository)
+                ret.add(expr)
+            return ret
+
+        @classmethod
+        def read_constants_from_files(cls, files, type_repository):
+            ret = set()
+            for filename in files:
+                ret.update(cls.read_constants_from_file(filename, type_repository))
+            return ret
+
+        def add_constants_to_ontology(self, constants_file):
+            if isinstance(constants_file, str):
+                self.constants_files.add(constants_file)
+            elif isinstance(constants_file, list):
+                self.constants_files.union(constants_file)
+            return self
+
+        def close_ontology(self, closed):
+            self.ontology_closed = closed
+            return self
+
+        def build(self):
+            """
+            Method for building a LogicLanguageServices
+
+            :return: spf.mr.lambda_.logic_language_services.LogicLanguageServices
+            """
+            conjunction_predicate = LogicalConstant.read('and:<t*,t>', self.type_repository)
+            disjunction_predicate = LogicalConstant.read('or:<t*,t>', self.type_repository)
+            negation_predicate = LogicalConstant.read('not:<t,t>', self.type_repository)
+            index_increase_predicate = LogicalConstant.read('inc:<%s,%s>' % (
+                self.type_repository.get_index_type().get_name(),
+                self.type_repository.get_index_type().get_name()), self.type_repository)
+
+            true_constant = LogicalConstant.create('true:t', self.type_repository.get_truth_value_type())
+            false_constant = LogicalConstant.create('false:t', self.type_repository.get_truth_value_type())
+
+            if len(self.constants_files) == 0:
+                ontology = None
+                if self.ontology_closed:
+                    raise RuntimeError('Closed ontology requested, but no logical constants were provided.')
+            else:
+                constants = self.read_constants_from_files(self.constants_files, self.type_repository)
+                constants.add(conjunction_predicate)
+                constants.add(disjunction_predicate)
+                constants.add(negation_predicate)
+                constants.add(index_increase_predicate)
+                constants.add(true_constant)
+                constants.add(false_constant)
+                ontology = Ontology(constants, self.ontology_closed)
+
+            return LogicLanguageServices(self.type_repository,
+                                         self.numeral_type_name,
+                                         self.type_comparator,
+                                         ontology,
+                                         conjunction_predicate,
+                                         disjunction_predicate,
+                                         negation_predicate,
+                                         index_increase_predicate,
+                                         true_constant,
+                                         false_constant,
+                                         self.printer)

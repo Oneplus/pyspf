@@ -1,46 +1,46 @@
 #!/usr/bin/env python
 
 from spf.ccg.categories.syntax.syntax import AbstractSyntax
-from spf.ccg.categories.syntax.slash import Slash
+
 
 class ComplexSyntax(AbstractSyntax):
-  def __init__(self_, left_, right_, slash_):
-    self_.left_ = left_
-    self_.right_ = right_
-    self_.num_slashes_ = left_.num_slashes() + right_.num_slashes() + 1
-    self_.slash_ = slash_
-    self_.hash_code_ = self_.calculate_hash_code()
-    self_.string_ = ComplexSyntax.compute_syntax_string(left_, right_, slash_)
+    def __init__(self, left, right, slash):
+        self.left = left
+        self.right = right
+        self.n_slashes = left.num_slashes() + right.num_slashes() + 1
+        self.slash = slash
+        self.hash_code = self.calculate_hash_code()
+        self.string = ComplexSyntax.compute_syntax_string(left, right, slash)
 
-  @staticmethod
-  def compute_syntax_string(left_, right_, slash_):
-    ret = str(left_) + str(slash_)
-    if isinstance(right_, ComplexSyntax):
-      ret += '(%s)' % str(right_)
-    else:
-      ret += str(right_)
-    return ret
+    @staticmethod
+    def compute_syntax_string(left, right, slash):
+        ret = str(left) + str(slash)
+        if isinstance(right, ComplexSyntax):
+            ret += '(%s)' % str(right)
+        else:
+            ret += str(right)
+        return ret
 
-  def get_left(self_):
-    return self_.left_
+    def get_left(self):
+        return self.left
 
-  def get_right(self_):
-    return self_.right_
+    def get_right(self):
+        return self.right
 
-  def get_slash(self_):
-    return self_.slash_
+    def get_slash(self):
+        return self.slash
 
-  def num_slashes(self_):
-    return self_.num_slashes_
+    def num_slashes(self):
+        return self.n_slashes
 
-  def calculate_hash_code(self_):
-    ret =  31 + (0 if self_.left_ is None else hash(self_.left_))
-    ret += 31 * ret + (0 if self.right_ is None else hash(self_.right_))
-    ret += 31 * ret + (0 if self.slash_ is None else hash(self_.slash_))
-    return ret
+    def calculate_hash_code(self):
+        ret = 31 + (0 if self.left is None else hash(self.left))
+        ret += 31 * ret + (0 if self.right is None else hash(self.right))
+        ret += 31 * ret + (0 if self.slash is None else hash(self.slash))
+        return ret
 
-  def __hash__(self_):
-    return self_.hash_code_
+    def __hash__(self):
+        return self.hash_code
 
-  def __str__(self_):
-    return self_.string_
+    def __str__(self):
+        return self.string
