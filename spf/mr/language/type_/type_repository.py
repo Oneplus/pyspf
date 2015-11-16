@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 
 from spf.mr.language.type_.array_type import ArrayType
+from spf.mr.language.type_.complex_type_builder import ComplexTypeBuilder
 from spf.mr.language.type_.term_type import TermType
 from spf.mr.language.type_.complex_type import ComplexType
 from spf.mr.language.type_.recursive_complex_type import RecursiveComplexType, Option
-from spf.mr.language.type_.type_ import Type
+from spf.mr.language.type_.api import Type
 from spf.utils.lisp_reader import LispReader
 import re
 from StringIO import StringIO
@@ -94,14 +95,17 @@ class TypeRepository(object):
             label = args[0]
             existing_type = self.get_type(label)
             if existing_type is None:
-                if (label.startswith(ComplexType.COMPLEX_TYPE_OPEN_PAREN) and
-                        label.endswith(ComplexType.COMPLEX_TYPE_CLOSE_PAREN)):
+                if label.startswith(ComplexType.COMPLEX_TYPE_OPEN_PAREN) and\
+                        label.endswith(ComplexType.COMPLEX_TYPE_CLOSE_PAREN):
                     return self.add_type(self.create_complex_type_from_string(label))
                 elif label.endswith(ArrayType.ARRAY_SUFFIX):
                     return self.add_type(self.create_array_type_from_string(label))
             return existing_type
+        elif len(args) == 2 and isinstance(args[0], Type) and isinstance(args[1], Type):
+            return self.get_type_create_if_needed(
+                ComplexType.compose_string(args[0], args[1], None))
         elif len(args) == 3 and isinstance(args[0], Type) and isinstance(args[1], Type) and\
-                (args[2] is None or isinstance(args[2], Option)):
+                isinstance(args[2], Option):
             return self.get_type_create_if_needed(
                 ComplexType.compose_string(args[0], args[1], args[2]))
         else:
@@ -149,13 +153,13 @@ class TypeRepository(object):
                 parenthesis_counter -= 1
         i += 1
         range_string = inner_string[i:].strip()
-        domain_string = inner_string[:i].strip()
+        domain_string = inner_string[:i - 1].strip()
 
         domain_stringtrimmed, option = Option.parse(domain_string)
         domain = self.get_type_create_if_needed(domain_stringtrimmed)
         range_ = self.get_type_create_if_needed(range_string)
 
-        return ComplexType.create(string, domain, range_, option)
+        return ComplexTypeBuilder.create(string, domain, range_, option)
 
     def create_term_type_from_string(self, string):
         lisp_reader = LispReader(StringIO(string))

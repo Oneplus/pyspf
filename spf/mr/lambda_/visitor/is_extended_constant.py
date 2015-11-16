@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-from spf.mr.lambda_.visitor.logical_expr_visitor import AbstractLogicalExpressionVisitor
+from spf.mr.lambda_.visitor.api import LogicalExpressionVisitorI
 
 
-class IsExtendedConstant(AbstractLogicalExpressionVisitor):
+class IsExtendedConstant(LogicalExpressionVisitorI):
     def __init__(self):
         self.is_extened_constant = True
 

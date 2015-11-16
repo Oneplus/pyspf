@@ -59,5 +59,5 @@ class Variable(Term):
                     else:
                         raise LogicalExpressionRuntimeError('Undefined variable reference: %s' % string)
             except Exception, e:
-                Variable.LOG.error("Variable error: %s" % string)
+                cls.LOG.error("Variable error: %s" % string)
                 raise e

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from spf.mr.language.type_.type_ import Type
+from spf.mr.language.type_.api import Type
 
 
 class ComplexType(Type):
@@ -21,12 +21,6 @@ class ComplexType(Type):
             range=str(range_))
         return ret
 
-    @staticmethod
-    def create(string_, domain, range_, option):
-        if option is None:
-            return ComplexType(string_, domain, range_)
-        else:
-            raise NotImplementedError('create RecursiveComplexType is not implemented')
 
     def get_domain(self):
         return self.domain

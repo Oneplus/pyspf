@@ -2,6 +2,8 @@
 import sys
 import os
 from spf.ccg.lexicon.factored.lambda_.factored_lexicon_services import FactoredLexiconServices
+from spf.ccg.lexicon.lexicon import Lexicon
+from spf.ccg.lexicon.lexical_entry import LexicalEntry
 from spf.mr.lambda_.ccg.logical_expr_category_services import LogicalExpressionCategoryServices
 from spf.mr.lambda_.flexible_type_comparator import FlexibleTypeComparator
 from spf.mr.lambda_.logic_language_services import LogicLanguageServices
@@ -34,6 +36,14 @@ def main(args=["E:\\workspace\\spf\\geoquery"]):
     unfactored_constants = {LogicalConstant.read("the:<<e,t>,e>"), LogicalConstant.read("exists:<<e,t>,t>")}
 
     FactoredLexiconServices.set(unfactored_constants)
+
+    read_lexicon = Lexicon()
+
+    def text_filter(x):
+        return x
+
+    read_lexicon.add_entries_from_file(os.path.join(resource_dir, "seed.lex"), text_filter, category_services,
+                                       LexicalEntry.Origin.FIXED_DOMAIN)
 
 
 if __name__ == "__main__":

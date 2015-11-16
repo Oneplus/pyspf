@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
 from spf.mr.lambda_.logical_const import LogicalConstant
-from spf.mr.lambda_.visitor.logical_expr_visitor import AbstractLogicalExpressionVisitor
+from spf.mr.lambda_.visitor.api import LogicalExpressionVisitorI
 
 
-class GetPredicateCounts(AbstractLogicalExpressionVisitor):
+class GetPredicateCounts(LogicalExpressionVisitorI):
     def __init__(self):
         self.predicates = {}
 

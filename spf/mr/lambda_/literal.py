@@ -5,12 +5,12 @@ from spf.mr.lambda_.logical_expr import LogicalExpression
 from spf.mr.lambda_.lambda_ import Lambda
 from spf.mr.lambda_.logical_expr_runtime_error import LogicalExpressionRuntimeError
 from spf.utils.lisp_reader import LispReader
+from spf.utils.log import get_logger
 from cStringIO import StringIO
-import logging
 
 
 class Literal(LogicalExpression):
-    LOG = logging.getLogger(__name__)
+    LOG = get_logger(__name__)
     PREFIX = LogicalExpression.PARENTHESIS_OPEN
 
     def __init__(self, predicate, arguments, *args):
@@ -68,9 +68,9 @@ class Literal(LogicalExpression):
             current_domain = current_range.get_domain()
             current_range = current_range.get_range()
 
-            if (not type_comparator.verify_arg_type(current_domain, arg_type) and
-                    isinstance(current_range, RecursiveComplexType) and
-                    current_range.get_final_range().is_complex()):
+            if not type_comparator.verify_arg_type(current_domain, arg_type) and\
+                    isinstance(current_range, RecursiveComplexType) and\
+                    current_range.get_final_range().is_complex():
                 if current_num_args < current_range.get_min_args():
                     cls.LOG.debug('Recursive type %s requires a minimum of %d arguments, %d were provided.' % (
                         current_range.get_min_args(), current_range.get_min_args(), current_num_args))

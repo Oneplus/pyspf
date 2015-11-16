@@ -30,7 +30,8 @@ class LogicalExpressionCategoryServices(AbstractCategoryServices):
     def compose_sem(self, primary, secondary, order):
         pass
 
-    def parse_semantics(self, string, check_type=True):
+    @classmethod
+    def parse_semantics(cls, string, check_type=True):
         expr = LogicalExpressionBuilder.read(string)
         if check_type and not IsTypeConsistent.of(expr):
             raise RuntimeError("Semantic not well typed: %s" % string)

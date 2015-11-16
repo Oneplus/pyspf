@@ -8,12 +8,12 @@ from spf.mr.lambda_.variable import Variable
 from spf.mr.lambda_.logical_expr_runtime_error import LogicalExpressionRuntimeError
 from spf.mr.lambda_.logic_language_services import LogicLanguageServices
 from spf.mr.lambda_.visitor.get_variables import GetVariables
-from spf.mr.lambda_.visitor.abstract_simplify import AbstractSimplify
+from spf.mr.lambda_.visitor.abstract_simplify import SimplifyI
 from spf.mr.lambda_.visitor.replace_variables_if_present import ReplaceVariablesIfPresent
 from spf.mr.lambda_.visitor.simplify import Simplify
 
 
-class ApplyAndSimplify(AbstractSimplify):
+class ApplyAndSimplify(SimplifyI):
     def __init__(self, applied_to_arg, root_variable):
         """
 

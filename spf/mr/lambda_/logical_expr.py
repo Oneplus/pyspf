@@ -1,6 +1,14 @@
 #!/usr/bin/env python
 
 
+class LogicalExpressionComparator(object):
+    def compare(self, o1, o2):
+        return o1.do_equals(o2, {})
+
+    def verify_arg_type(self, signature_type, arg_type):
+        raise NotImplementedError()
+
+
 class LogicalExpression(object):
     PARENTHESIS_CLOSE = ')'
     PARENTHESIS_OPEN = '('

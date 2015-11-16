@@ -1,9 +1,8 @@
 #!/usr/bin/env python
+from spf.mr.lambda_.visitor.api import LogicalExpressionVisitorI
 
-from spf.mr.lambda_.visitor.logical_expr_visitor import AbstractLogicalExpressionVisitor
 
-
-class GetAllFreeVariables(AbstractLogicalExpressionVisitor):
+class GetAllFreeVariables(LogicalExpressionVisitorI):
     """ Free Variables are the unbound variable, e.g. $1 in (lambda $0:e (predicate:<e,<e,t>> $0 $1)) """
     def __init__(self):
         self.bound_variables = set()

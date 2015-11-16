@@ -4,10 +4,10 @@ import logging
 import sys
 from spf.mr.lambda_.variable import Variable
 from spf.mr.lambda_.logic_language_services import LogicLanguageServices
-from spf.mr.lambda_.visitor.logical_expr_visitor import AbstractLogicalExpressionVisitor
+from spf.mr.lambda_.visitor.api import LogicalExpressionVisitorI
 
 
-class IsTypeConsistent(AbstractLogicalExpressionVisitor):
+class IsTypeConsistent(LogicalExpressionVisitorI):
     """ Verify typing consistency across the logical form. """
     LOG = logging.getLogger(__name__)
     LOG.addHandler(logging.StreamHandler(sys.stderr))

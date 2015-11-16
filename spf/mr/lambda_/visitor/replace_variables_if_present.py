@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 
-from spf.mr.lambda_.visitor.logical_expr_visitor import AbstractLogicalExpressionVisitor
+from spf.mr.lambda_.visitor.api import LogicalExpressionVisitorI
 from spf.mr.lambda_.lambda_ import Lambda
 from spf.mr.lambda_.literal import Literal
 from spf.mr.lambda_.variable import Variable
 
 
-class ReplaceVariablesIfPresent(AbstractLogicalExpressionVisitor):
+class ReplaceVariablesIfPresent(LogicalExpressionVisitorI):
     def __int__(self, variables):
         self.old_variables_to_new = {}
         self.temp_return = None

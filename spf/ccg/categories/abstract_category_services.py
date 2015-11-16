@@ -83,7 +83,7 @@ class AbstractCategoryServices(object):
 
     @classmethod
     def create_complex_category(cls, string, semantics):
-        string = string.trim()
+        string = string.strip()
         if string.startswith(cls.OPEN_PAREN) and string.endswith(cls.CLOSE_PAREN):
             trim = True
             depth = 0
@@ -114,7 +114,7 @@ class AbstractCategoryServices(object):
 
         return ComplexCategory(
             ComplexSyntax(
-                cls.parse(string[0, last_slash_position]).get_syntax(),
+                cls.parse(string[0: last_slash_position]).get_syntax(),
                 cls.parse(string[last_slash_position + 1:]).get_syntax(),
                 last_slash),
             semantics)

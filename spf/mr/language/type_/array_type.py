@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from spf.mr.language.type_.type_ import Type
+from spf.mr.language.type_.api import Type
 
 
 class ArrayType(Type):

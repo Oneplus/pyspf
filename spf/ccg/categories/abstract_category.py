@@ -3,8 +3,8 @@
 
 class AbstractCategory(object):
     def __init__(self, semantics):
-        self.hash_code_cache_ = None
-        self.hash_code_calculated_ = False
+        self.hash_code_cache = None
+        self.hash_code_calculated = False
         self.semantics = semantics
 
     def __eq__(self, other):
@@ -32,7 +32,7 @@ class AbstractCategory(object):
 
     def __hash__(self):
         if not self.hash_code_calculated:
-            self.hash_code_cache_ = self.calculate_hash_code()
+            self.hash_code_cache = self.calculate_hash_code()
             self.hash_code_calculated = True
         return self.hash_code_cache
 

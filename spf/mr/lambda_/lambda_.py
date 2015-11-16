@@ -4,14 +4,14 @@ from spf.mr.lambda_.logical_expr import LogicalExpression
 from spf.mr.lambda_.logical_expr_runtime_error import LogicalExpressionRuntimeError
 from spf.mr.lambda_.variable import Variable
 from spf.utils.lisp_reader import LispReader
+from spf.utils.log import get_logger
 from cStringIO import StringIO
-import logging
 
 
 class Lambda(LogicalExpression):
     HEAD_STRING = 'lambda'
     PREFIX = LogicalExpression.PARENTHESIS_OPEN + HEAD_STRING  # (lambda
-    LOG = logging.getLogger(__name__)
+    LOG = get_logger(__name__)
 
     def __init__(self, argument, body, type_repository=None):
         super(Lambda, self).__init__()
@@ -27,9 +27,9 @@ class Lambda(LogicalExpression):
         visitor.visit(self)
 
     def calculate_hash_code(self):
-        ret = 31 + (0 if self.argument is None else self.argument.calculate_hash_code())
-        ret = 31 * ret + (0 if self.body is None else self.body.calculate_hash_code())
-        ret = 31 * ret + (0 if self.type_ is None else self.type_.calculate_hash_code())
+        ret = 31 + (0 if self.argument is None else hash(self.argument))
+        ret = 31 * ret + (0 if self.body is None else hash(self.body))
+        ret = 31 * ret + (0 if self.type_ is None else hash(self.type_))
         return ret
 
     def get_argument(self):

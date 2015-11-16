@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-from spf.mr.lambda_.visitor.logical_expr_visitor import AbstractLogicalExpressionVisitor
+from spf.mr.lambda_.visitor.api import LogicalExpressionVisitorI
 
 
-class GetAllVacuousVariables(AbstractLogicalExpressionVisitor):
+class GetAllVacuousVariables(LogicalExpressionVisitorI):
     """ Vacuous variables is like (lambda $0:e (predicate:<e,t> UK)) """
     def __init__(self):
         self.vacuous_variables = set()

@@ -1,9 +1,8 @@
 #!/usr/bin/env python
+from spf.mr.lambda_.visitor.abstract_simplify import SimplifyI
 
-from spf.mr.lambda_.visitor.abstract_simplify import AbstractSimplify
 
-
-class Simplify(AbstractSimplify):
+class Simplify(SimplifyI):
     def __init__(self, strip_lambdas):
         super(Simplify, self).__init__(strip_lambdas)
 

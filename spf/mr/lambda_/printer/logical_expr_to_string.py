@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 from spf.mr.lambda_.term import Term
-from spf.mr.lambda_.visitor.logical_expr_visitor import AbstractLogicalExpressionVisitor
+from spf.mr.lambda_.visitor.api import LogicalExpressionVisitorI
 
 
-class LogicalExpressionToString(AbstractLogicalExpressionVisitor):
+class LogicalExpressionToString(LogicalExpressionVisitorI):
     def __init__(self):
         self.output_string = ""
         self.variable_naming_list = []

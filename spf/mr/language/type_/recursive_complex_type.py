@@ -36,9 +36,8 @@ class RecursiveComplexType(ComplexType):
     ''' RecursiveComplexType is used to handle the type like <t*,t> '''
     MIN_NUM_ARGUMENT = 2
 
-    def __init__(self, domain, range_, *args):
-        self.domain = domain
-        self.range_ = range_
+    def __init__(self, label, domain, range_, *args):
+        super(RecursiveComplexType, self).__init__(label, domain, range_)
         if len(args) == 2:
             self.order_sensitive = args[0]
             self.min_args = args[1]

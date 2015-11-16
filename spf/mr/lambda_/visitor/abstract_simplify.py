@@ -1,15 +1,13 @@
 #!/usr/bin/env python
-
 from spf.mr.lambda_.literal import Literal
 from spf.mr.lambda_.lambda_ import Lambda
 from spf.mr.lambda_.variable import Variable
-from spf.mr.lambda_.logical_const import LogicalConstant
 from spf.mr.lambda_.visitor.is_containing_variable import IsContainingVariable
-from spf.mr.lambda_.visitor.logical_expr_visitor import AbstractLogicalExpressionVisitor
+from spf.mr.lambda_.visitor.api import LogicalExpressionVisitorI
 from spf.mr.language.type_.recursive_complex_type import RecursiveComplexType
 
 
-class AbstractSimplify(AbstractLogicalExpressionVisitor):
+class SimplifyI(LogicalExpressionVisitorI):
     def __init__(self, strip_lambdas):
         self.strip_lambda = strip_lambdas
         self.temp_return = None

@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-from spf.mr.lambda_.visitor.logical_expr_visitor import AbstractLogicalExpressionVisitor
+from spf.mr.lambda_.visitor.api import LogicalExpressionVisitorI
 
 
-class IsValid(AbstractLogicalExpressionVisitor):
+class IsValid(LogicalExpressionVisitorI):
     """
     IsValid check if the there is variables that already used in former lambda expression, e.g.:
     (lambda $0:e (lambda $0:e (p:<e,t> $0)))

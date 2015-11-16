@@ -27,8 +27,8 @@ class Slash(object):
     def get_slash(c):
         if c == Slash.BACKWARD.get_char():
             return Slash.BACKWARD
-        elif c == Slash.FOWARD.get_char():
-            return Slash.FOWARD
+        elif c == Slash.FORWARD.get_char():
+            return Slash.FORWARD
         elif c == Slash.VERTICAL.get_char():
             return Slash.VERTICAL
         else:

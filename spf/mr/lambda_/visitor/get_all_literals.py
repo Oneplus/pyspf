@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-from spf.mr.lambda_.visitor.logical_expr_visitor import AbstractLogicalExpressionVisitor
+from spf.mr.lambda_.visitor.api import LogicalExpressionVisitorI
 
 
-class GetAllLiterals(AbstractLogicalExpressionVisitor):
+class GetAllLiterals(LogicalExpressionVisitorI):
     """
     Get all the literals from the input logical expression. (lambda $0:e (lambda $1:e (predicate:<e,<e,t>> $0 $1))
     """

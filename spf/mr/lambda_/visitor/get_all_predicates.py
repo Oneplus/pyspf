@@ -2,10 +2,10 @@
 
 from spf.mr.language.type_.complex_type import ComplexType
 from spf.mr.lambda_.logic_language_services import LogicLanguageServices
-from spf.mr.lambda_.visitor.logical_expr_visitor import AbstractLogicalExpressionVisitor
+from spf.mr.lambda_.visitor.api import LogicalExpressionVisitorI
 
 
-class GetAllPredicates(AbstractLogicalExpressionVisitor):
+class GetAllPredicates(LogicalExpressionVisitorI):
     def __init__(self):
         self.predicates = set()
 

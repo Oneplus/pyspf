@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
 from collections import Counter
-from spf.mr.lambda_.visitor.logical_expr_visitor import AbstractLogicalExpressionVisitor
+from spf.mr.lambda_.visitor.api import LogicalExpressionVisitorI
 
 
-class GetConstantsMultiSet(AbstractLogicalExpressionVisitor):
+class GetConstantsMultiSet(LogicalExpressionVisitorI):
     def __init__(self):
         self.constants = Counter()
 

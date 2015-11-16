@@ -3,10 +3,10 @@
 from spf.mr.lambda_.logical_const import LogicalConstant
 from spf.mr.lambda_.lambda_ import Lambda
 from spf.mr.lambda_.literal import Literal
-from spf.mr.lambda_.visitor.logical_expr_visitor import AbstractLogicalExpressionVisitor
+from spf.mr.lambda_.visitor.api import LogicalExpressionVisitorI
 
 
-class GetStructure(AbstractLogicalExpressionVisitor):
+class GetStructure(LogicalExpressionVisitorI):
     """
     This visitor remove the lexical items in lambda calculus, e.g.
     (lambda $0 (foo:<e,<e,t>> $0 bar) --> (lambda $0 (ann:<e,<e,t>> $0 ann))
