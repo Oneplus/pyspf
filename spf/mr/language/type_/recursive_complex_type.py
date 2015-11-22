@@ -33,7 +33,7 @@ class Option(object):
 
 
 class RecursiveComplexType(ComplexType):
-    ''' RecursiveComplexType is used to handle the type like <t*,t> '''
+    """ RecursiveComplexType is used to handle the type like <t*,t> """
     MIN_NUM_ARGUMENT = 2
 
     def __init__(self, label, domain, range_, *args):

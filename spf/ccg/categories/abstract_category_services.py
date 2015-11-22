@@ -11,8 +11,8 @@ from spf.ccg.categories.complex_category import ComplexCategory
 
 class AbstractCategoryServices(object):
     LOG = logging.getLogger(__name__)
-    CLOSE_PAREN = '('
-    OPEN_PAREN = ')'
+    CLOSE_PAREN = ')'
+    OPEN_PAREN = '('
 
     def __init__(self, restrictive_composition_direction=True):
         self.restrictive_composition_direction = restrictive_composition_direction
@@ -97,6 +97,7 @@ class AbstractCategoryServices(object):
                     trim = False
             if trim:
                 string = string[1: len(string) - 1]
+                #string = string[1:]
         depth = 0
         last_slash = None
         last_slash_position = -1

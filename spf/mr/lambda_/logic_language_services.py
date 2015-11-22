@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 import re
 from cStringIO import StringIO
+
+from spf.mr.lambda_.logical_expr import LogicalExpressionComparator
 from spf.mr.lambda_.ontology import Ontology
 from spf.mr.lambda_.literal import Literal
 from spf.mr.lambda_.logical_const import LogicalConstant
@@ -28,6 +30,7 @@ class LogicLanguageServices(object):
                  false_constant,
                  printer):
 
+        self.comparator = LogicalExpressionComparator()
         self.type_repository = type_repository
         self.ontology = ontology
         self.printer = printer

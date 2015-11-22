@@ -7,7 +7,7 @@ class LexicalEntry(object):
         self.linked_entries = set()
         self.origin = None
         self.category = category
-        self.tokens = frozenset(tokens)
+        self.tokens = tuple(tokens)
         # TODO
         self.hash_code_cache = self.calculate_hash_code()
 

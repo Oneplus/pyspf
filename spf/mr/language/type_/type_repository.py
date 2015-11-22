@@ -12,6 +12,7 @@ from StringIO import StringIO
 
 
 class TypeRepository(object):
+    """ TypeRepository is an facility for creating and storing type. """
     ENTITY_TYPE_NAME = 'e'
     INDEX_TYPE_NAME = 'ind'
     TRUTH_VALUE_TYPE_NAME = 't'
@@ -53,6 +54,13 @@ class TypeRepository(object):
         self.lock_primitives = True
 
     def generalize_type(self, type_):
+        """
+        Generalize type to its most superterm. Supposing we have an ontology like ((lo e)), for an input TermType lo,
+        the return value should be e.
+
+        :param type_:
+        :return:
+        """
         if type_.is_complex():
             recursive_domain_ = isinstance(type_, RecursiveComplexType)
             option_ = type_.get_option() if recursive_domain_ else None
@@ -65,6 +73,7 @@ class TypeRepository(object):
             super_type = current_type.get_parent()
             while super_type is not None:
                 current_type = super_type
+                super_type = current_type.get_parent()
             return current_type
         if type_.is_array():
             return self.get_array_type_created_if_needed(type_.get_base_type())
@@ -105,7 +114,7 @@ class TypeRepository(object):
             return self.get_type_create_if_needed(
                 ComplexType.compose_string(args[0], args[1], None))
         elif len(args) == 3 and isinstance(args[0], Type) and isinstance(args[1], Type) and\
-                isinstance(args[2], Option):
+                (args[2] is None or isinstance(args[2], Option)):
             return self.get_type_create_if_needed(
                 ComplexType.compose_string(args[0], args[1], args[2]))
         else:

@@ -129,3 +129,8 @@ class ApplyAndSimplify(SimplifyI):
             if simplified_expr != new_expr:
                 self.temp_return = simplified_expr
                 return
+
+    def visit_variable(self, variable):
+        if variable == self.root_variable:
+            if self.applied_once_already:
+                pass

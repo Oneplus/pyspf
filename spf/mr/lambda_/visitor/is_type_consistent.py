@@ -68,5 +68,5 @@ class IsTypeConsistent(LogicalExpressionVisitorI):
                 else:
                     return historical_type_.is_extending(signature_type)
         else:
-            return signature_type.is_array() == arg.is_array() and \
+            return signature_type.is_array() == arg.get_type().is_array() and \
                    arg.get_type().is_extending_or_extended_by(signature_type)

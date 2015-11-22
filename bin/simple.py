@@ -9,6 +9,7 @@ from spf.mr.lambda_.flexible_type_comparator import FlexibleTypeComparator
 from spf.mr.lambda_.logic_language_services import LogicLanguageServices
 from spf.mr.lambda_.logical_const import LogicalConstant
 from spf.mr.language.type_.type_repository import TypeRepository
+from spf.mr.lambda_.logical_expr_builder import LogicalExpressionBuilder
 from spf.utils.log import get_logger
 
 LOG = get_logger(__name__)
@@ -31,6 +32,11 @@ def main(args=["E:\\workspace\\spf\\geoquery"]):
             .close_ontology(True)
             .build()
     )
+
+    expr = LogicalExpressionBuilder.read("(size:<lo,i> (argmax:<<e,t>,<<e,i>,e>> (lambda $0:e (and:<t*,t> (city:<c,t> $0) (loc:<lo,<lo,t>> $0 alaska:s))) (lambda $1:e (size:<lo,i> $1))))")
+
+    import sys
+    sys.exit(0)
 
     category_services = LogicalExpressionCategoryServices(True, True)
     unfactored_constants = {LogicalConstant.read("the:<<e,t>,e>"), LogicalConstant.read("exists:<<e,t>,t>")}

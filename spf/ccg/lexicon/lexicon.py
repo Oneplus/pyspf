@@ -44,6 +44,9 @@ class Lexicon(LexiconI):
                     if len(line) != 0 and not line.startswith("//"):
                         added.add(self.add(LexicalEntry.parse(line, category_service, origin, text_filter)))
             except Exception, e:
+                import sys, traceback
+                exc_type, exc_value, exc_traceback = sys.exc_info()
+                traceback.print_tb(exc_traceback)
                 raise RuntimeError("Reading input file %s failed at %d" % (filename, line_count), e)
             return added
         except Exception, e:

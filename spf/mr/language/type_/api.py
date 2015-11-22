@@ -8,7 +8,7 @@ class Type(object):
         self.name = name
 
     def __eq__(self, other):
-        return self == other
+        return id(self) == id(other)
 
     def __neq__(self, other):
         return not self.__eq__(other)
@@ -41,6 +41,3 @@ class Type(object):
     def __hash__(self):
         return hash(self.name)
 
-        # def read_resolve(self):
-        #  ''' querying the type repository and get the equivalent class '''
-        #  return LogicalLanguageServices.get_type_repository().get_type_create_if_needed(self.name)

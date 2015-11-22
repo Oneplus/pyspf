@@ -35,7 +35,8 @@ class LogicalExpressionCategoryServices(AbstractCategoryServices):
         expr = LogicalExpressionBuilder.read(string)
         if check_type and not IsTypeConsistent.of(expr):
             raise RuntimeError("Semantic not well typed: %s" % string)
-        return Simplify.of(expr)
+        #return Simplify.of(expr)
+        return expr
 
     def __hash__(self):
         result = 31 + (1231 if self.do_type_checking else 1237)

@@ -23,7 +23,7 @@ class Literal(LogicalExpression):
         """
         super(Literal, self).__init__()
         self.predicate = predicate
-        self.arguments = arguments
+        self.arguments = tuple(arguments)
 
         if len(args) == 0:
             from spf.mr.lambda_.logic_language_services import LogicLanguageServices
@@ -86,7 +86,7 @@ class Literal(LogicalExpression):
             implied_signature_types.append(current_domain)
             current_num_args += 1
 
-            if i + 1 < len(arg_type) and not current_range.is_complex():
+            if i + 1 < len(arg_types) and not current_range.is_complex():
                 cls.LOG.debug('Too many arguments for predicate of type %s: %s' % (predicate_type, arg_type))
                 return None
 
@@ -105,6 +105,9 @@ class Literal(LogicalExpression):
                     implied_signature_types)
         else:
             return current_range, implied_signature_types
+
+    def accept(self, visitor):
+        visitor.visit(self)
 
     def calculate_hash_code(self):
         result = 31

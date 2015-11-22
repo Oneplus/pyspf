@@ -21,7 +21,6 @@ class ComplexType(Type):
             range=str(range_))
         return ret
 
-
     def get_domain(self):
         return self.domain
 
